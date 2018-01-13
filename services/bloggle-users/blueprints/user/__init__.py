@@ -4,10 +4,10 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from blueprints.user.models import User
 from common import db
 
-user_blueprint = Blueprint('user', __name__)
+user_blueprint = Blueprint('user', __name__, url_prefix='/users')
 
 
-@user_blueprint.route('/users', methods=['POST'])
+@user_blueprint.route('', methods=['POST'])
 def create():
     data = request.get_json()
     if not data:
@@ -47,7 +47,7 @@ def create():
         }), 500
 
 
-@user_blueprint.route('/users', methods=['GET'])
+@user_blueprint.route('', methods=['GET'])
 def index():
     try:
         return jsonify({
@@ -63,7 +63,7 @@ def index():
         }), 500
 
 
-@user_blueprint.route('/users/<user_guid>', methods=['PATCH'])
+@user_blueprint.route('/<user_guid>', methods=['PATCH'])
 def update(user_guid):
     data = request.get_json()
     if not data:
@@ -110,7 +110,7 @@ def update(user_guid):
         }), 500
 
 
-@user_blueprint.route('/users/<user_guid>', methods=['GET'])
+@user_blueprint.route('/<user_guid>', methods=['GET'])
 def view(user_guid):
     try:
         user = User.query.filter_by(guid=user_guid).first()
@@ -136,7 +136,7 @@ def view(user_guid):
         }), 500
 
 
-@user_blueprint.route('/users/<user_guid>', methods=['DELETE'])
+@user_blueprint.route('/<user_guid>', methods=['DELETE'])
 def delete(user_guid):
     try:
         user = User.query.filter_by(guid=user_guid).first()
