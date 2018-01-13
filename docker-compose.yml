@@ -29,23 +29,51 @@ services:
   bloggle-blogs:
     container_name: bloggle-blogs
     build: ./services/bloggle-blogs/
+    environment:
+      - DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_blogs
+      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_blogs_testing
     env_file:
       - ./services/bloggle-blogs/.env
+    depends_on:
+      - bloggle-db
+    links:
+      - bloggle-db
 
   bloggle-comments:
     container_name: bloggle-comments
     build: ./services/bloggle-comments/
+    environment:
+      - DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_comments
+      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_comments_testing
     env_file:
       - ./services/bloggle-comments/.env
+    depends_on:
+      - bloggle-db
+    links:
+      - bloggle-db
 
   bloggle-posts:
     container_name: bloggle-posts
     build: ./services/bloggle-posts/
+    environment:
+      - DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_posts
+      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_posts_testing
     env_file:
       - ./services/bloggle-posts/.env
+    depends_on:
+      - bloggle-db
+    links:
+      - bloggle-db
 
   bloggle-users:
     container_name: bloggle-users
     build: ./services/bloggle-users/
+    environment:
+      - DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_users
+      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_users_testing
     env_file:
       - ./services/bloggle-users/.env
+    depends_on:
+      - bloggle-db
+    links:
+      - bloggle-db

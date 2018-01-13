@@ -1,12 +1,5 @@
-import datetime
-from flask import Flask, jsonify
+import os
 
-app = Flask(__name__)
+from common import create_app
 
-
-@app.route('/status', methods=['GET'])
-def status():
-    return jsonify({
-        'success': True,
-        'time': str(datetime.datetime.now())
-    })
+app = create_app(os.getenv('APP_ENV'))
