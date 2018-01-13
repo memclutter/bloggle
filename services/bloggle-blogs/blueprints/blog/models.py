@@ -18,7 +18,7 @@ class Blog(db.Model):
 
     def __iter__(self):
         yield 'guid', self.guid
-        yield 'user_guid', self.guid
+        yield 'user_guid', self.user_guid
         yield 'title', self.title
         yield 'about', self.about
         yield 'created_at', self.created_at
