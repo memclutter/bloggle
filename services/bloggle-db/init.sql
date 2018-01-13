@@ -1,3 +1,7 @@
+\c template1
+
+CREATE EXTENSION "uuid-ossp";
+
 CREATE DATABASE bloggle_blogs;
 CREATE DATABASE bloggle_blogs_testing;
 CREATE DATABASE bloggle_comments;

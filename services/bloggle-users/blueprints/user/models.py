@@ -1,4 +1,5 @@
-from sqlalchemy import func
+from sqlalchemy import func, event
+from sqlalchemy.dialects import postgresql
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from common import db
@@ -9,13 +10,13 @@ class User(db.Model):
 
     __tablename__ = 'user'
 
-    id = db.Column(db.Integer, unique=True, primary_key=True)
-    email = db.Column(db.String(255), unique=True, nullable=False)
+    guid = db.Column(postgresql.UUID, index=True, unique=True, server_default=func.uuid_generate_v4(), primary_key=True)
+    email = db.Column(db.String(255), index=True, unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     first_name = db.Column(db.String(32), nullable=True)
     last_name = db.Column(db.String(32), nullable=True)
     created_at = db.Column(db.DateTime, server_default=func.now(), nullable=False)
-    updated_at = db.Column(db.DateTime, server_onupdate=func.now(), nullable=True)
+    updated_at = db.Column(db.DateTime, nullable=True)
 
     def set_password(self, password):
         """Set user password"""
@@ -26,7 +27,7 @@ class User(db.Model):
         return check_password_hash(self.password, password)
 
     def __iter__(self):
-        yield 'id', self.id
+        yield 'guid', self.guid
         yield 'email', self.email
         yield 'first_name', self.first_name
         yield 'last_name', self.last_name

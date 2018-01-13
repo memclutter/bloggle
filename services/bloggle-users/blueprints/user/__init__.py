@@ -63,8 +63,8 @@ def index():
         }), 500
 
 
-@user_blueprint.route('/users/<user_id>', methods=['PATCH'])
-def update(user_id):
+@user_blueprint.route('/users/<user_guid>', methods=['PATCH'])
+def update(user_guid):
     data = request.get_json()
     if not data:
         return jsonify({
@@ -74,14 +74,14 @@ def update(user_id):
 
     try:
         try:
-            user = User.query.filter_by(id=int(user_id)).first()
+            user = User.query.filter_by(guid=user_guid).first()
             if not user:
                 raise ValueError
 
         except ValueError:
             return jsonify({
                 'success': False,
-                'message': 'User (id=%s) does not exist' % user_id
+                'message': 'User (guid=%s) does not exist' % user_guid
             }), 404
 
         user.email = data.get('email', user.email)
@@ -110,10 +110,10 @@ def update(user_id):
         }), 500
 
 
-@user_blueprint.route('/users/<user_id>', methods=['GET'])
-def view(user_id):
+@user_blueprint.route('/users/<user_guid>', methods=['GET'])
+def view(user_guid):
     try:
-        user = User.query.filter_by(id=int(user_id)).first()
+        user = User.query.filter_by(guid=user_guid).first()
         if not user:
             raise ValueError
 
@@ -124,7 +124,7 @@ def view(user_id):
     except ValueError:
         return jsonify({
             'success': False,
-            'message': 'User (id=%s) does not exist' % user_id
+            'message': 'User (guid=%s) does not exist' % user_guid
         }), 404
 
     except OperationalError as e:
@@ -136,10 +136,10 @@ def view(user_id):
         }), 500
 
 
-@user_blueprint.route('/users/<user_id>', methods=['DELETE'])
-def delete(user_id):
+@user_blueprint.route('/users/<user_guid>', methods=['DELETE'])
+def delete(user_guid):
     try:
-        user = User.query.filter_by(id=int(user_id)).first()
+        user = User.query.filter_by(guid=user_guid).first()
         if not user:
             raise ValueError
 
@@ -152,7 +152,7 @@ def delete(user_id):
     except ValueError:
         return jsonify({
             'success': False,
-            'message': 'User (id=%s) does not exist' % user_id
+            'message': 'User (guid=%s) does not exist' % user_guid
         }), 404
 
     except OperationalError as e:
