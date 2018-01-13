@@ -1,6 +1,22 @@
 version: '3'
 services:
 
+  bloggle-nginx:
+    container_name: bloggle-nginx
+    build: ./services/bloggle-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - bloggle-blogs
+      - bloggle-comments
+      - bloggle-posts
+      - bloggle-users
+    links:
+      - bloggle-blogs
+      - bloggle-comments
+      - bloggle-posts
+      - bloggle-users
+
   bloggle-db:
     container_name: bloggle-db
     build: ./services/bloggle-db/
@@ -9,3 +25,27 @@ services:
     environment:
       - POSTGRES_USER=bloggle
       - POSTGRES_PASSWORD=bloggle
+
+  bloggle-blogs:
+    container_name: bloggle-blogs
+    build: ./services/bloggle-blogs/
+    env_file:
+      - ./services/bloggle-blogs/.env
+
+  bloggle-comments:
+    container_name: bloggle-comments
+    build: ./services/bloggle-comments/
+    env_file:
+      - ./services/bloggle-comments/.env
+
+  bloggle-posts:
+    container_name: bloggle-posts
+    build: ./services/bloggle-posts/
+    env_file:
+      - ./services/bloggle-posts/.env
+
+  bloggle-users:
+    container_name: bloggle-users
+    build: ./services/bloggle-users/
+    env_file:
+      - ./services/bloggle-users/.env
