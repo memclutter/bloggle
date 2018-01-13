@@ -13,7 +13,9 @@ def create_app(environment):
     db.init_app(app)
 
     from blueprints.status import status_blueprint
+    from blueprints.blog import blog_blueprint
 
     app.register_blueprint(status_blueprint)
+    app.register_blueprint(blog_blueprint)
 
     return app
