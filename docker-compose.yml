@@ -25,6 +25,8 @@ services:
     environment:
       - POSTGRES_USER=bloggle
       - POSTGRES_PASSWORD=bloggle
+    volumes:
+      - db
 
   bloggle-blogs:
     container_name: bloggle-blogs
@@ -77,3 +79,6 @@ services:
       - bloggle-db
     links:
       - bloggle-db
+
+volumes:
+  db: {}
