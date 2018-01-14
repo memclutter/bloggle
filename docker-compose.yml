@@ -7,15 +7,9 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - bloggle-blogs
-      - bloggle-comments
-      - bloggle-posts
-      - bloggle-users
+      - bloggle-api-gateway
     links:
-      - bloggle-blogs
-      - bloggle-comments
-      - bloggle-posts
-      - bloggle-users
+      - bloggle-api-gateway
 
   bloggle-db:
     container_name: bloggle-db
@@ -27,6 +21,22 @@ services:
       - POSTGRES_PASSWORD=bloggle
     volumes:
       - db
+
+  bloggle-api-gateway:
+    container_name: bloggle-api-gateway
+    build: ./services/bloggle-api-gateway
+    env_file:
+      - ./services/bloggle-api-gateway/.env
+    depends_on:
+      - bloggle-blogs
+      - bloggle-comments
+      - bloggle-posts
+      - bloggle-users
+    links:
+      - bloggle-blogs
+      - bloggle-comments
+      - bloggle-posts
+      - bloggle-users
 
   bloggle-blogs:
     container_name: bloggle-blogs
