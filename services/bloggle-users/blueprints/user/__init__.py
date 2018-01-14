@@ -164,3 +164,48 @@ def delete(user_guid):
             'success': False,
             'message': message,
         }), 500
+
+
+@user_blueprint.route('/<user_guid>/check_password', methods=['POST'])
+def check_password(user_guid):
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            'success': False,
+            'message': 'Invalid payload'
+        }), 400
+
+    password = data.get('password')
+    if not password:
+        return jsonify({
+            'success': False,
+            'message': 'Missing password',
+        }), 400
+
+    try:
+        try:
+            user = User.query.filter_by(guid=user_guid).first()
+            if not user:
+                raise ValueError
+
+        except ValueError:
+            return jsonify({
+                'success': False,
+                'message': 'User (guid=%s) does not exist' % user_guid
+            })
+
+        if user.check_password(password):
+            return jsonify({
+                'success': True
+            }), 200
+        else:
+            return jsonify({
+                'success': False,
+            }), 400
+    except OperationalError as e:
+        message = 'Database error: %s' % e if current_app.debug else 'Server error'
+
+        return jsonify({
+            'success': False,
+            'message': message,
+        }), 500
