@@ -14,6 +14,11 @@ services:
   bloggle-api-gateway:
     container_name: bloggle-api-gateway
     build: ./services/bloggle-api-gateway
+    environment:
+      - BLOGS_ENDPOINT=http://bloggle-blogs:5000/
+      - COMMENTS_ENDPOINT=http://bloggle-comments:5000/
+      - POSTS_ENDPOINT=http://bloggle-posts:5000/
+      - USERS_ENDPOINT=http://bloggle-users:5000/
     env_file:
       - ./services/bloggle-api-gateway/.env
     depends_on:
