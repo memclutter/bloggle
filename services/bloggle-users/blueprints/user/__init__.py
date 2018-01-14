@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
+from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from blueprints.user.models import User
@@ -50,9 +51,20 @@ def create():
 @user_blueprint.route('', methods=['GET'])
 def index():
     try:
+        conditions = []
+
+        if 'email' in request.args:
+            conditions.append(User.email == request.args['email'])
+
+        if 'first_name' in request.args:
+            conditions.append(User.first_name.ilike(request.args['first_name']))
+
+        if 'last_name' in request.args:
+            conditions.append(User.first_name.ilike(request.args['last_name']))
+
         return jsonify({
             'success': True,
-            'data': [dict(u) for u in User.query.all()]
+            'data': [dict(u) for u in User.query.filter(and_(*conditions)).all()]
         }), 200
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
