@@ -5,26 +5,26 @@ class BaseConfig(object):
     DEBUG = False
     TESTING = False
     SECRET_KEY = os.getenv('SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICTATIONS = False
 
 
-class DevelopmentConfig(BaseConfig):
+class DevConfig(BaseConfig):
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.getenv('DEV_DATABASE_URI')
 
 
-class TestingConfig(BaseConfig):
+class TestConfig(BaseConfig):
     DEBUG = True
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.getenv('TEST_DATABASE_URI')
 
 
-class ProductionConfig(BaseConfig):
-    pass
+class ProdConfig(BaseConfig):
+    SQLALCHEMY_DATABASE_URI = os.getenv('PROD_DATABASE_URI')
 
 
 environments = {
-    'production': ProductionConfig,
-    'development': DevelopmentConfig,
-    'testing': TestingConfig
+    'prod': ProdConfig,
+    'dev': DevConfig,
+    'test': TestConfig
 }

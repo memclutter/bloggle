@@ -11,17 +11,6 @@ services:
     links:
       - bloggle-api-gateway
 
-  bloggle-db:
-    container_name: bloggle-db
-    build: ./services/bloggle-db/
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=bloggle
-      - POSTGRES_PASSWORD=bloggle
-    volumes:
-      - db
-
   bloggle-api-gateway:
     container_name: bloggle-api-gateway
     build: ./services/bloggle-api-gateway
@@ -42,53 +31,96 @@ services:
     container_name: bloggle-blogs
     build: ./services/bloggle-blogs/
     environment:
-      - DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_blogs
-      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_blogs_testing
+      - PROD_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-blogs-db:5432/prod
+      - DEV_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-blogs-db:5432/dev
+      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-blogs-db:5432/test
     env_file:
       - ./services/bloggle-blogs/.env
     depends_on:
-      - bloggle-db
+      - bloggle-blogs-db
     links:
-      - bloggle-db
+      - bloggle-blogs-db
 
   bloggle-comments:
     container_name: bloggle-comments
     build: ./services/bloggle-comments/
     environment:
-      - DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_comments
-      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_comments_testing
+      - PROD_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-comments-db:5432/prod
+      - DEV_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-comments-db:5432/dev
+      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-comments-db:5432/test
     env_file:
       - ./services/bloggle-comments/.env
     depends_on:
-      - bloggle-db
+      - bloggle-comments-db
     links:
-      - bloggle-db
+      - bloggle-comments-db
 
   bloggle-posts:
     container_name: bloggle-posts
     build: ./services/bloggle-posts/
     environment:
-      - DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_posts
-      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_posts_testing
+      - PROD_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-posts-db:5432/prod
+      - DEV_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-posts-db:5432/dev
+      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-posts-db:5432/test
     env_file:
       - ./services/bloggle-posts/.env
     depends_on:
-      - bloggle-db
+      - bloggle-posts-db
     links:
-      - bloggle-db
+      - bloggle-posts-db
 
   bloggle-users:
     container_name: bloggle-users
     build: ./services/bloggle-users/
     environment:
-      - DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_users
-      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-db:5432/bloggle_users_testing
+      - PROD_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-users-db:5432/prod
+      - DEV_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-users-db:5432/dev
+      - TEST_DATABASE_URI=postgresql://bloggle:bloggle@bloggle-users-db:5432/test
     env_file:
       - ./services/bloggle-users/.env
     depends_on:
-      - bloggle-db
+      - bloggle-users-db
     links:
-      - bloggle-db
+      - bloggle-users-db
+
+  bloggle-blogs-db:
+    container_name: bloggle-blogs-db
+    build: ./services/bloggle-blogs/db/
+    environment:
+      - POSTGRES_USER=bloggle
+      - POSTGRES_PASSWORD=bloggle
+    volumes:
+      - bloggle-blogs-db
+
+  bloggle-comments-db:
+    container_name: bloggle-comments-db
+    build: ./services/bloggle-comments/db/
+    environment:
+      - POSTGRES_USER=bloggle
+      - POSTGRES_PASSWORD=bloggle
+    volumes:
+      - bloggle-comments-db
+
+  bloggle-posts-db:
+    container_name: bloggle-posts-db
+    build: ./services/bloggle-posts/db/
+    environment:
+      - POSTGRES_USER=bloggle
+      - POSTGRES_PASSWORD=bloggle
+    volumes:
+      - bloggle-posts-db
+
+  bloggle-users-db:
+    container_name: bloggle-users-db
+    build: ./services/bloggle-users/db/
+    environment:
+      - POSTGRES_USER=bloggle
+      - POSTGRES_PASSWORD=bloggle
+    volumes:
+      - bloggle-users-db
 
 volumes:
-  db: {}
+  bloggle-blogs-db: {}
+  bloggle-comments-db: {}
+  bloggle-posts-db: {}
+  bloggle-users-db: {}

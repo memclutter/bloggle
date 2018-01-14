@@ -1,0 +1,7 @@
+\c template1
+
+CREATE EXTENSION "uuid-ossp";
+
+CREATE DATABASE prod;
+CREATE DATABASE dev;
+CREATE DATABASE test;

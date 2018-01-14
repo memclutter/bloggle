@@ -7,21 +7,21 @@ class BaseConfig(object):
     SECRET_KEY = os.getenv('SECRET_KEY')
 
 
-class DevelopmentConfig(BaseConfig):
+class DevConfig(BaseConfig):
     DEBUG = True
 
 
-class TestingConfig(BaseConfig):
+class TestConfig(BaseConfig):
     DEBUG = True
     TESTING = True
 
 
-class ProductionConfig(BaseConfig):
+class ProdConfig(BaseConfig):
     pass
 
 
 environments = {
-    'production': ProductionConfig,
-    'development': DevelopmentConfig,
-    'testing': TestingConfig
+    'prod': ProdConfig,
+    'deve': DevConfig,
+    'test': TestConfig
 }
