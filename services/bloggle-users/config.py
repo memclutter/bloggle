@@ -17,6 +17,7 @@ class TestConfig(BaseConfig):
     DEBUG = True
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.getenv('TEST_DATABASE_URI')
+    PRESERVE_CONTEXT_ON_EXCEPTION = False
 
 
 class ProdConfig(BaseConfig):

@@ -20,6 +20,7 @@ class DevConfig(BaseConfig):
 class TestConfig(BaseConfig):
     DEBUG = True
     TESTING = True
+    PRESERVE_CONTEXT_ON_EXCEPTION = False
 
 
 class ProdConfig(BaseConfig):
