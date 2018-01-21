@@ -39,3 +39,33 @@ def create():
         return jsonify(dict(success=False, message=message)), 400
 
     return jsonify(dict(success=True, data=data)), 201
+
+
+@blog_blueprint.route('', methods=['GET'])
+@jwt_required
+def index():
+    current_user = get_jwt_identity()
+    user_guid = current_user.get('guid')
+    blogs_endpoint = current_app.config['ENDPOINTS']['blogs']
+    blogs = ServiceClient(blogs_endpoint)
+
+    try:
+        page = int(request.args.get('page', 1))
+        page_size = int(request.args.get('page_size', 10))
+
+        if (page <= 0) or (page_size <= 0):
+            raise ValueError
+    except ValueError:
+        return jsonify(dict(success=False, message='Invalid payload')), 400
+
+    try:
+        ok, data, message = blogs.get('/blogs', dict(page=page,
+                                                     page_size=page_size,
+                                                     user_guid=user_guid))
+    except RuntimeError as e:
+        return jsonify(dict(success=False, message=str(e))), 500
+
+    if not ok:
+        return jsonify(dict(success=False, message=message)), 400
+
+    return jsonify(dict(success=True, data=data)), 200

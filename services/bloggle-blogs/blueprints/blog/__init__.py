@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
+from sqlalchemy import or_, and_
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from blueprints.blog.models import Blog
@@ -47,10 +48,45 @@ def create():
 @blog_blueprint.route('', methods=['GET'])
 def index():
     try:
-        return jsonify({
-            'success': True,
-            'data': [dict(u) for u in Blog.query.all()]
-        }), 200
+        page = int(request.args.get('page', 1))
+        page_size = int(request.args.get('page_size', 10))
+
+        if (page_size <= 0) or (page <= 0):
+            raise ValueError
+    except ValueError:
+        return jsonify(dict(success=False, message='Invalid payload')), 400
+
+    try:
+        query = db.session.query(Blog)
+
+        conditions = []
+
+        if 'user_guid' in request.args:
+            conditions.append(Blog.user_guid == request.args.get('user_guid'))
+
+        if 'search' in request.args:
+            search = request.args.get('search')
+            conditions.append(or_(
+                Blog.title.ilike('%' + search + '%'),
+                Blog.about.ilike('%' + search + '%')
+            ))
+
+        query = query.filter(and_(*conditions))
+
+        total_count = query.count()
+        page_count = (total_count // page_size) + (1 if (total_count % page_size) != 0 else 0)
+        offset = (page-1) * page_size
+        limit = page_size
+
+        query = query.offset(offset).limit(limit)
+
+        blogs = [dict(u) for u in query.all()]
+        data = dict(items=blogs,
+                    page=page,
+                    page_count=page_count,
+                    page_size=page_size,
+                    total_count=total_count)
+        return jsonify(dict(success=True, data=data)), 200
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
