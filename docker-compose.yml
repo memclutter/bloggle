@@ -95,7 +95,7 @@ services:
       - POSTGRES_USER=bloggle
       - POSTGRES_PASSWORD=bloggle
     volumes:
-      - bloggle-blogs-db
+      - "bloggle-blogs-db:/var/lib/postgresql/data"
 
   bloggle-comments-db:
     container_name: bloggle-comments-db
@@ -104,7 +104,7 @@ services:
       - POSTGRES_USER=bloggle
       - POSTGRES_PASSWORD=bloggle
     volumes:
-      - bloggle-comments-db
+      - "bloggle-comments-db:/var/lib/postgresql/data"
 
   bloggle-posts-db:
     container_name: bloggle-posts-db
@@ -113,7 +113,7 @@ services:
       - POSTGRES_USER=bloggle
       - POSTGRES_PASSWORD=bloggle
     volumes:
-      - bloggle-posts-db
+      - "bloggle-posts-db:/var/lib/postgresql/data"
 
   bloggle-users-db:
     container_name: bloggle-users-db
@@ -122,7 +122,7 @@ services:
       - POSTGRES_USER=bloggle
       - POSTGRES_PASSWORD=bloggle
     volumes:
-      - bloggle-users-db
+      - "bloggle-users-db:/var/lib/postgresql/data"
 
 volumes:
   bloggle-blogs-db: {}

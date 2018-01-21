@@ -178,7 +178,7 @@ def delete(user_guid):
         }), 500
 
 
-@user_blueprint.route('/<user_guid>/check_password', methods=['POST'])
+@user_blueprint.route('/<user_guid>/check-password', methods=['POST'])
 def check_password(user_guid):
     data = request.get_json()
     if not data:
@@ -204,15 +204,17 @@ def check_password(user_guid):
             return jsonify({
                 'success': False,
                 'message': 'User (guid=%s) does not exist' % user_guid
-            })
+            }), 404
 
         if user.check_password(password):
             return jsonify({
-                'success': True
+                'success': True,
+                'data': True,
             }), 200
         else:
             return jsonify({
                 'success': False,
+                'data': False,
             }), 400
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'

@@ -5,6 +5,7 @@ class BaseConfig(object):
     DEBUG = False
     TESTING = False
     SECRET_KEY = os.getenv('SECRET_KEY')
+    JWT_SECRET_KEY = os.getenv('SECRET_KEY')
     ENDPOINTS = {
         'blogs': os.getenv('BLOGS_ENDPOINT'),
         'comments': os.getenv('COMMENTS_ENDPOINT'),
