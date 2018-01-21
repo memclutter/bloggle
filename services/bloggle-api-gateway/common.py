@@ -14,9 +14,11 @@ def create_app(environment):
     jwt.init_app(app)
 
     from blueprints.status import status_blueprint
+    from blueprints.blog import blog_blueprint
     from blueprints.user import user_blueprint
 
     app.register_blueprint(status_blueprint)
+    app.register_blueprint(blog_blueprint)
     app.register_blueprint(user_blueprint)
 
     return app
