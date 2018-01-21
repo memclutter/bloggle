@@ -3,17 +3,17 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 
 from common import ServiceClient
 
-account_blueprint = Blueprint('accounts', __name__, url_prefix='/accounts')
+user_blueprint = Blueprint('users', __name__, url_prefix='/users')
 
 
-@account_blueprint.route('/me', methods=['GET'])
+@user_blueprint.route('/me', methods=['GET'])
 @jwt_required
 def me():
     current_user = get_jwt_identity()
     return jsonify(dict(success=True, data=current_user)), 200
 
 
-@account_blueprint.route('/auth', methods=['POST'])
+@user_blueprint.route('/auth', methods=['POST'])
 def auth():
     data = request.get_json()
     if not data:
