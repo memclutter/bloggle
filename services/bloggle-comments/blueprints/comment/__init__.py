@@ -11,10 +11,7 @@ comment_blueprint = Blueprint('comment', __name__, url_prefix='/comments')
 def create():
     data = request.get_json()
     if not data:
-        return jsonify({
-            'success': False,
-            'message': 'Invalid payload',
-        }), 400
+        return jsonify('Invalid payload'), 400
 
     post_guid = data.get('post_guid')
     user_guid = data.get('user_guid')
@@ -30,46 +27,31 @@ def create():
         db.session.add(comment)
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-            'data': dict(comment),
-        }), 201
+        return jsonify(dict(comment)), 201
 
     except (IntegrityError, OperationalError) as e:
         db.session.rollback()
 
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @comment_blueprint.route('', methods=['GET'])
 def index():
     try:
-        return jsonify({
-            'success': True,
-            'data': [dict(u) for u in Comment.query.all()]
-        }), 200
+        return jsonify([dict(u) for u in Comment.query.all()]), 200
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @comment_blueprint.route('/<comment_guid>', methods=['PATCH'])
 def update(comment_guid):
     data = request.get_json()
     if not data:
-        return jsonify({
-            'success': False,
-            'message': 'Invalid payload',
-        }), 400
+        return jsonify('Invalid payload'), 400
 
     try:
         try:
@@ -78,10 +60,7 @@ def update(comment_guid):
                 raise ValueError
 
         except ValueError:
-            return jsonify({
-                'success': False,
-                'message': 'Comment (guid=%s) does not exist' % comment_guid
-            }), 404
+            return jsonify('Comment (guid=%s) does not exist' % comment_guid), 404
 
         comment.post_guid = data.get('post_guid', comment.post_guid)
         comment.user_guid = data.get('user_guid', comment.user_guid)
@@ -91,20 +70,14 @@ def update(comment_guid):
         db.session.add(comment)
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-            'data': dict(comment),
-        })
+        return jsonify(dict(comment)), 200
 
     except (IntegrityError, OperationalError) as e:
         db.session.rollback()
 
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @comment_blueprint.route('/<comment_guid>', methods=['GET'])
@@ -114,23 +87,14 @@ def view(comment_guid):
         if not comment:
             raise ValueError
 
-        return jsonify({
-            'success': True,
-            'data': dict(comment)
-        }), 200
+        return jsonify(dict(comment)), 200
     except ValueError:
-        return jsonify({
-            'success': False,
-            'message': 'Comment (guid=%s) does not exist' % comment_guid
-        }), 404
+        return jsonify('Comment (guid=%s) does not exist' % comment_guid), 404
 
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @comment_blueprint.route('/<comment_guid>', methods=['DELETE'])
@@ -143,21 +107,13 @@ def delete(comment_guid):
         db.session.delete(comment)
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-        }), 204
+        return jsonify(), 204
     except ValueError:
-        return jsonify({
-            'success': False,
-            'message': 'Comment (guid=%s) does not exist' % comment_guid
-        }), 404
+        return jsonify('Comment (guid=%s) does not exist' % comment_guid), 404
 
     except OperationalError as e:
         db.session.rollback()
 
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500

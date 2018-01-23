@@ -12,10 +12,7 @@ blog_blueprint = Blueprint('blog', __name__, url_prefix='/blogs')
 def create():
     data = request.get_json()
     if not data:
-        return jsonify({
-            'success': False,
-            'message': 'Invalid payload',
-        }), 400
+        return jsonify('Invalid payload'), 400
     
     user_guid = data.get('user_guid')
     title = data.get('title')
@@ -28,21 +25,15 @@ def create():
         
         db.session.add(blog)
         db.session.commit()
-    
-        return jsonify({
-            'success': True,
-            'data': dict(blog),
-        }), 201
+
+        return jsonify(dict(blog)), 201
     
     except (IntegrityError, OperationalError) as e:
         db.session.rollback()
 
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @blog_blueprint.route('', methods=['GET'])
@@ -54,7 +45,7 @@ def index():
         if (page_size <= 0) or (page <= 0):
             raise ValueError
     except ValueError:
-        return jsonify(dict(success=False, message='Invalid payload')), 400
+        return jsonify('Invalid payload'), 400
 
     try:
         query = db.session.query(Blog)
@@ -86,24 +77,18 @@ def index():
                     page_count=page_count,
                     page_size=page_size,
                     total_count=total_count)
-        return jsonify(dict(success=True, data=data)), 200
+        return jsonify(data), 200
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @blog_blueprint.route('/<blog_guid>', methods=['PATCH'])
 def update(blog_guid):
     data = request.get_json()
     if not data:
-        return jsonify({
-            'success': False,
-            'message': 'Invalid payload',
-        }), 400
+        return jsonify('Invalid payload'), 400
 
     try:
         try:
@@ -112,10 +97,7 @@ def update(blog_guid):
                 raise ValueError
 
         except ValueError:
-            return jsonify({
-                'success': False,
-                'message': 'Blog (guid=%s) does not exist' % blog_guid
-            }), 404
+            return jsonify('Blog (guid=%s) does not exist' % blog_guid), 404
 
         blog.user_guid = data.get('user_guid', blog.user_guid)
         blog.title = data.get('title', blog.title)
@@ -124,20 +106,14 @@ def update(blog_guid):
         db.session.add(blog)
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-            'data': dict(blog),
-        })
+        return jsonify(dict(blog)), 200
 
     except (IntegrityError, OperationalError) as e:
         db.session.rollback()
 
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @blog_blueprint.route('/<blog_guid>', methods=['GET'])
@@ -147,23 +123,14 @@ def view(blog_guid):
         if not blog:
             raise ValueError
 
-        return jsonify({
-            'success': True,
-            'data': dict(blog)
-        }), 200
+        return jsonify(dict(blog)), 200
     except ValueError:
-        return jsonify({
-            'success': False,
-            'message': 'Blog (guid=%s) does not exist' % blog_guid
-        }), 404
+        return jsonify('Blog (guid=%s) does not exist' % blog_guid), 404
 
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @blog_blueprint.route('/<blog_guid>', methods=['DELETE'])
@@ -176,21 +143,13 @@ def delete(blog_guid):
         db.session.delete(blog)
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-        }), 204
+        return jsonify(), 204
     except ValueError:
-        return jsonify({
-            'success': False,
-            'message': 'Blog (guid=%s) does not exist' % blog_guid
-        }), 404
+        return jsonify('Blog (guid=%s) does not exist' % blog_guid), 404
 
     except OperationalError as e:
         db.session.rollback()
 
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500

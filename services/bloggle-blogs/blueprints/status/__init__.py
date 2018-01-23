@@ -6,11 +6,8 @@ status_blueprint = Blueprint('status', __name__)
 
 @status_blueprint.route('/status', methods=['GET'])
 def status():
-    return jsonify({
-        'success': True,
-        'time': str(datetime.datetime.now()),
-        'current_app': {
-            'debug': current_app.debug,
-            'testing': current_app.testing,
-        },
-    })
+    time = str(datetime.datetime.now())
+    config_keys = ['DEBUG', 'TESTING']
+    config = {k: v for (k, v) in current_app.config.items() if k in config_keys}
+
+    return jsonify(dict(time=time, config=config)), 200

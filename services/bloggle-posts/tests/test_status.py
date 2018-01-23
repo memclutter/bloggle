@@ -14,22 +14,22 @@ class StatusBlueprintTestCase(BaseTestCase):
     def test_status_return_correct_body(self):
         """Check status method return correct body."""
         response = self.client.get('/status')
-        data = json.loads(response.data.decode())
-        self.assertIn('success', data)
-        self.assertIn('time', data)
-        self.assertIn('current_app', data)
+        body = json.loads(response.data.decode())
+        self.assertIn('success', body)
+        self.assertIn('data', body)
 
-    def test_status_return_correct_current_app_field(self):
+    def test_status_return_correct_config(self):
         """Check status method return correct current app field."""
         response = self.client.get('/status')
-        data = json.loads(response.data.decode())
-        current_app = data['current_app']
+        body = json.loads(response.data.decode())
+        data = body.get('data')
+        config = data.get('config')
 
-        self.assertIn('debug', current_app)
-        self.assertIn('testing', current_app)
+        self.assertIn('DEBUG', config)
+        self.assertIn('TESTING', config)
 
-        self.assertTrue(current_app['debug'])
-        self.assertTrue(current_app['testing'])
+        self.assertTrue(config['DEBUG'])
+        self.assertTrue(config['TESTING'])
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@ from flask import Flask
 from flask_jwt_extended import JWTManager
 
 from config import environments
+from helpers import format_response
 
 jwt = JWTManager()
 
@@ -10,6 +11,7 @@ jwt = JWTManager()
 def create_app(environment):
     app = Flask(__name__)
     app.config.from_object(environments[environment])
+    app.after_request(format_response)
 
     jwt.init_app(app)
 

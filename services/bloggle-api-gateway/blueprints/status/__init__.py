@@ -13,21 +13,12 @@ def status():
         resp = requests.get(endpoint + 'status')
 
         try:
-            body = resp.json()
+            status_of_services[name] = resp.json()
         except ValueError:
-            body = {'success': False, 'message': resp.text}
+            status_of_services[name] = resp.text
 
-        status_of_services[name] = {
-            'status_code': resp.status_code,
-            'body': body
-        }
+    time = str(datetime.datetime.now())
+    config_keys = ['DEBUG', 'TESTING']
+    config = {k: v for (k, v) in current_app.config.items() if k in config_keys}
 
-    return jsonify({
-        'success': True,
-        'time': str(datetime.datetime.now()),
-        'current_app': {
-            'debug': current_app.debug,
-            'testing': current_app.testing,
-        },
-        'status_of_services': status_of_services,
-    })
+    return jsonify(dict(time=time, config=config, status_of_services=status_of_services)), 200
