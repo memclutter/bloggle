@@ -12,10 +12,7 @@ user_blueprint = Blueprint('user', __name__, url_prefix='/users')
 def create():
     data = request.get_json()
     if not data:
-        return jsonify({
-            'success': False,
-            'message': 'Invalid payload',
-        }), 400
+        return jsonify('Invalid payload'), 400
 
     email = data.get('email')
     password = data.get('password')
@@ -32,20 +29,14 @@ def create():
         db.session.add(user)
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-            'data': dict(user),
-        }), 201
+        return jsonify(dict(user)), 201
 
     except (IntegrityError, OperationalError) as e:
         db.session.rollback()
 
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @user_blueprint.route('', methods=['GET'])
@@ -62,27 +53,18 @@ def index():
         if 'last_name' in request.args:
             conditions.append(User.first_name.ilike(request.args['last_name']))
 
-        return jsonify({
-            'success': True,
-            'data': [dict(u) for u in User.query.filter(and_(*conditions)).all()]
-        }), 200
+        return jsonify([dict(u) for u in User.query.filter(and_(*conditions)).all()]), 200
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @user_blueprint.route('/<user_guid>', methods=['PATCH'])
 def update(user_guid):
     data = request.get_json()
     if not data:
-        return jsonify({
-            'success': False,
-            'message': 'Invalid payload',
-        }), 400
+        return jsonify('Invalid payload'), 400
 
     try:
         try:
@@ -91,10 +73,7 @@ def update(user_guid):
                 raise ValueError
 
         except ValueError:
-            return jsonify({
-                'success': False,
-                'message': 'User (guid=%s) does not exist' % user_guid
-            }), 404
+            return jsonify('User (guid=%s) does not exist' % user_guid), 404
 
         user.email = data.get('email', user.email)
         user.first_name = data.get('first_name', user.first_name)
@@ -106,20 +85,14 @@ def update(user_guid):
         db.session.add(user)
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-            'data': dict(user),
-        })
+        return jsonify(dict(user)), 200
 
     except (IntegrityError, OperationalError) as e:
         db.session.rollback()
 
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @user_blueprint.route('/<user_guid>', methods=['GET'])
@@ -129,23 +102,14 @@ def view(user_guid):
         if not user:
             raise ValueError
 
-        return jsonify({
-            'success': True,
-            'data': dict(user)
-        }), 200
+        return jsonify(dict(user)), 200
     except ValueError:
-        return jsonify({
-            'success': False,
-            'message': 'User (guid=%s) does not exist' % user_guid
-        }), 404
+        return jsonify('User (guid=%s) does not exist' % user_guid), 404
 
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @user_blueprint.route('/<user_guid>', methods=['DELETE'])
@@ -158,41 +122,27 @@ def delete(user_guid):
         db.session.delete(user)
         db.session.commit()
 
-        return jsonify({
-            'success': True,
-        }), 204
+        return jsonify(), 204
     except ValueError:
-        return jsonify({
-            'success': False,
-            'message': 'User (guid=%s) does not exist' % user_guid
-        }), 404
+        return jsonify('User (guid=%s) does not exist' % user_guid), 404
 
     except OperationalError as e:
         db.session.rollback()
 
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
 
 
 @user_blueprint.route('/<user_guid>/check-password', methods=['POST'])
 def check_password(user_guid):
     data = request.get_json()
     if not data:
-        return jsonify({
-            'success': False,
-            'message': 'Invalid payload'
-        }), 400
+        return jsonify('Invalid payload'), 400
 
     password = data.get('password')
     if not password:
-        return jsonify({
-            'success': False,
-            'message': 'Missing password',
-        }), 400
+        return jsonify('Missing password'), 400
 
     try:
         try:
@@ -201,25 +151,13 @@ def check_password(user_guid):
                 raise ValueError
 
         except ValueError:
-            return jsonify({
-                'success': False,
-                'message': 'User (guid=%s) does not exist' % user_guid
-            }), 404
+            return jsonify('User (guid=%s) does not exist' % user_guid), 404
 
         if user.check_password(password):
-            return jsonify({
-                'success': True,
-                'data': True,
-            }), 200
+            return jsonify(True), 200
         else:
-            return jsonify({
-                'success': False,
-                'data': False,
-            }), 400
+            return jsonify(False), 200
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
-        return jsonify({
-            'success': False,
-            'message': message,
-        }), 500
+        return jsonify(message), 500
