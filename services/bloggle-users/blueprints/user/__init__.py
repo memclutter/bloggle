@@ -134,29 +134,35 @@ def delete(user_guid):
         return jsonify(message), 500
 
 
-@user_blueprint.route('/<user_guid>/check-password', methods=['POST'])
-def check_password(user_guid):
+@user_blueprint.route('/check-identity', methods=['POST'])
+def check_identity():
     data = request.get_json()
     if not data:
         return jsonify('Invalid payload'), 400
 
+    email = data.get('email')
     password = data.get('password')
+
+    errors = dict()
+
+    if not email:
+        errors['email'] = 'Email is required'
+
     if not password:
-        return jsonify('Missing password'), 400
+        errors['password'] = 'Password is required'
+
+    if len(errors) > 0:
+        return jsonify(message='Validation errors', data=errors), 422
 
     try:
-        try:
-            user = User.query.filter_by(guid=user_guid).first()
-            if not user:
-                raise ValueError
-
-        except ValueError:
-            return jsonify('User (guid=%s) does not exist' % user_guid), 404
+        user = db.session.query(User).filter_by(email=email).first()
+        if not user:
+            return jsonify('User (email=%s) does not exist' % email), 404
 
         if user.check_password(password):
-            return jsonify(True), 200
+            return jsonify(dict(user)), 200
         else:
-            return jsonify(False), 200
+            return jsonify('User (email=%s, password=%s) does not exist' % (email, password)), 404
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 

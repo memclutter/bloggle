@@ -37,10 +37,7 @@ class ServiceClient(object):
         data = body['data'] if is_json and ('data' in body) else None
         message = body['message'] if is_json and ('message' in body) else 'Internal server error'
 
-        if status_code >= 500:
-            raise RuntimeError(message)
-
-        return success, data, message
+        return success, status_code, data, message
 
     def __init__(self, endpoint):
         self.endpoint = endpoint
@@ -54,6 +51,12 @@ class ServiceClient(object):
     def post(self, path, data):
         url = self._create_url(path)
         response = requests.post(url, json=data)
+
+        return self._process_response(response)
+
+    def delete(self, path):
+        url = self._create_url(path)
+        response = requests.delete(url)
 
         return self._process_response(response)
 
