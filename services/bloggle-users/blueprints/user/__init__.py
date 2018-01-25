@@ -1,5 +1,6 @@
+import re
 from flask import Blueprint, request, jsonify, current_app
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from blueprints.user.models import User
@@ -19,7 +20,24 @@ def create():
     first_name = data.get('first_name')
     last_name = data.get('last_name')
 
+    errors = dict()
+
     try:
+        if not email:
+            errors['email'] = 'Email is required'
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+            errors['email'] = 'Invalid email address'
+        else:
+            user = db.session.query(User).filter_by(email=email).first()
+            if user:
+                errors['email'] = 'Email \'%s\' already use' % email
+
+        if not password:
+            errors['password'] = 'Password is required'
+
+        if len(errors) > 0:
+            return jsonify(dict(message='Validation errors', data=errors)), 422
+
         user = User(email=email,
                     first_name=first_name,
                     last_name=last_name)
@@ -42,6 +60,17 @@ def create():
 @user_blueprint.route('', methods=['GET'])
 def index():
     try:
+        page = int(request.args.get('page', 1))
+        page_size = int(request.args.get('page_size', 10))
+
+        if (page_size <= 0) or (page <= 0):
+            raise ValueError
+    except ValueError:
+        return jsonify('Invalid payload'), 400
+
+    try:
+        query = db.session.query(User)
+
         conditions = []
 
         if 'email' in request.args:
@@ -51,9 +80,32 @@ def index():
             conditions.append(User.first_name.ilike(request.args['first_name']))
 
         if 'last_name' in request.args:
-            conditions.append(User.first_name.ilike(request.args['last_name']))
+            conditions.append(User.last_name.ilike(request.args['last_name']))
 
-        return jsonify([dict(u) for u in User.query.filter(and_(*conditions)).all()]), 200
+        if 'search' in request.args:
+            search = request.args.get('search')
+            conditions.append(or_(
+                User.email.ilike('%' + search + '%'),
+                User.first_name.ilike('%' + search + '%'),
+                User.last_name.ilike('%' + search + '%')
+            ))
+
+        query = query.filter(and_(*conditions))
+
+        total_count = query.count()
+        page_count = (total_count // page_size) + (1 if (total_count % page_size) != 0 else 0)
+        offset = (page-1) * page_size
+        limit = page_size
+
+        query = query.offset(offset).limit(limit)
+
+        items = [dict(u) for u in query.all()]
+        data = dict(items=items,
+                    page=page,
+                    page_count=page_count,
+                    page_size=page_size,
+                    total_count=total_count)
+        return jsonify(data), 200
     except OperationalError as e:
         message = 'Database error: %s' % e if current_app.debug else 'Server error'
 
